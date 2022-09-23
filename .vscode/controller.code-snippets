@@ -1,0 +1,122 @@
+{
+  "Adding Controller": {
+    "scope": "javascript",
+    "prefix": "ctrl",
+    "body": ["exports.${1:controllerName} = (req, res, next) => {", "\t$0", "};"],
+    "description": "Add controller"
+  },
+  "Adding async Controller": {
+    "scope": "javascript",
+    "prefix": "ctrla",
+    "body": [
+      "exports.${1:controllerName} = async (req, res, next) => {",
+      "\ttry {",
+      "\t\t$0",
+      "\t} catch (err) {",
+      "\t\tif (!err.statusCode) {",
+      "\t\t\terr.statusCode = 500;",
+      "\t\t}",
+      "\t\tnext(err);",
+      "\t}",
+      "};"
+    ],
+    "description": "Add async controller"
+  },
+
+  "Try catch": {
+    "scope": "javascript",
+    "prefix": "tryc",
+    "body": ["try {", "\t$0", "} catch (${1:err}) {", "\t$2", "}"],
+    "description": "Outputs a try/catch statement"
+  },
+
+  "Arrow Function": {
+    "scope": "javascript",
+    "prefix": "arf",
+    "body": ["const ${1:label} = ($2) => {", "\t$3", "};"],
+    "description": "arrow function"
+  },
+  "Async arrow Function": {
+    "scope": "javascript",
+    "prefix": "aarf",
+    "body": ["const ${1:label} = async ($2) => {", "\t$3", "};"],
+    "description": "arrow function"
+  },
+  "Route": {
+    "scope": "javascript",
+    "prefix": "router",
+    "body": [
+      "const express = require('express');",
+      "",
+      "$1",
+      "",
+      "const router = express.Router();",
+      "",
+      "$0",
+      "",
+      "module.exports = router;",
+      ""
+    ],
+    "description": "router"
+  }
+  // template engine ejs
+  // "ejsinc": {
+  //   "prefix": "ejsinc",
+  //   "body": "<%- include('$1') %>",
+  //   "description": "ejs output"
+  // },
+  // "ejs-": {
+  //   "prefix": "ej-",
+  //   "body": "<%- $1 %>",
+  //   "description": "Outputs the unescaped value into the template"
+  // },
+  // "ejs": {
+  //   "prefix": "ejs",
+  //   "body": "<% $1 %>",
+  //   "description": "'Scriptlet' tag, for control-flow, no output"
+  // },
+  // "ejso": {
+  //   "prefix": "ejso",
+  //   "body": "<%= $1 %>",
+  //   "description": "evaluates ejs code"
+  // },
+  // "ejsfor": {
+  //   "prefix": "ejsfor",
+  //   "body": ["<% for (let $1 of $2){ %>", "\t$3", "<% } %>"],
+  //   "description": "creates ejs for of loop"
+  // },
+  // "ejsif": {
+  //   "prefix": "ejsif",
+  //   "body": [
+  //     "<% if ($1) { %>",
+  //     "\t$2",
+  //     "<% } %>"
+  //   ],
+  //   "description": "creates ejs if condition"
+  // },
+  // "ejsifel": {
+  //   "prefix": "ejsifel",
+  //   "body": [
+  //     "<% if ($1) { %>",
+  //     "\t$2",
+  //     "<% } else { %>",
+  //     "\t$3",
+  //     "<% } %>"
+  //   ],
+  //   "description": "creates ejs if else condition"
+  // },
+  // "ejselif": {
+  //   "prefix": "ejselif",
+  //   "body": "<% } else if (${1:condition}) { %>",
+  //   "description": "creates ejs else if condition"
+  // },j
+  // "ejseach": {
+  //   "prefix": "ejseach",
+  //   "body": [
+  //     "<% array.forEach((${1:item}) => { %>",
+  //     "\t$2",
+  //     "<% }) %>"
+  //   ],
+  //   "description": "creates array forEach"
+  // },
+}
