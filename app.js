@@ -3,9 +3,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 
-const feedRoutes = require('./routes/feed');
 const corsMiddleware = require('./middlewars/cors');
 const rootDir = require('./util/path');
+
+const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const MONGODP_URI = process.env.MONGODB_URI;
 
@@ -19,15 +21,18 @@ app.use(corsMiddleware);
 
 // routes
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 // error handling
 app.use((error, req, res, next) => {
-  const statusCode = error.statusCode || 500,
-    message = error.message || 'Error on server';
-  res.status(statusCode).json({
-    message,
-    validationErrors: error.errors || [],
-  });
+  const statusCode = error.statusCode || 500;
+  const data = {
+    message: error.message || 'Error on server',
+  };
+  if (error.validationErrors) {
+    data.validationErrors = error.validationErrors;
+  }
+  res.status(statusCode).json(data);
 });
 
 const port = process.env.PORT || 8080;
@@ -43,4 +48,4 @@ const port = process.env.PORT || 8080;
   }
 })();
 
-// 25 - 15
+// 25 - 20

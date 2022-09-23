@@ -15,4 +15,6 @@ router.get('/post/:id', feedController.getPostById);
 
 router.put('/post/:id', upload.single('image'), postValidator, feedController.putUpdatePost);
 
+router.delete('/post/:id', feedController.deletePost);
+
 module.exports = router;

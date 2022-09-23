@@ -14,11 +14,6 @@ const schema = new mongoose.Schema(
       required: true,
       type: String,
     },
-    // authorId: {
-    //   required: true,
-    //   type: mongoose.Types.ObjectId,
-    //   ref: 'User',
-    // },
   },
   {
     timestamps: true,

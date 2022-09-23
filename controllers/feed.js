@@ -3,10 +3,18 @@ const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 const { clearImage } = require('../util/image');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const page = +req.query.page || 1;
+    const totalPosts = await Post.find().countDocuments();
+    const posts = await Post.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
     res.status(200).json({
+      pagesCount: Math.ceil(totalPosts / ITEMS_PER_PAGE),
+      totalPosts,
       posts,
     });
   } catch (error) {
@@ -23,7 +31,7 @@ exports.createPost = async (req, res, next) => {
     if (!errors.isEmpty()) {
       const error = new Error('Validation failed, entered data is incorrect');
       error.statusCode = 422;
-      error.errors = errors.array();
+      error.validationErrors = errors.array();
       throw error;
     }
     if (!req.file) {
@@ -78,7 +86,7 @@ exports.putUpdatePost = async (req, res, next) => {
     if (!errors.isEmpty()) {
       const error = new Error('Validation failed, entered data is incorrect');
       error.statusCode = 422;
-      error.errors = errors.array();
+      error.validationErrors = errors.array();
       throw error;
     }
     const { id } = req.params;
@@ -109,6 +117,28 @@ exports.putUpdatePost = async (req, res, next) => {
     res.status(200).json({
       message: 'Post updated successfully',
       post,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.deletePost = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findById(id);
+    if (!post) {
+      const error = new Error('Post is not exist');
+      error.statusCode = 404;
+      throw error;
+    }
+    clearImage(post.imageUrl);
+    await post.delete();
+    res.status(200).json({
+      message: 'Post deleted successfully',
     });
   } catch (err) {
     if (!err.statusCode) {
