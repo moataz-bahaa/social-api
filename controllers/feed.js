@@ -1,8 +1,9 @@
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
-const User = require('../models/user');
 const { clearImage } = require('../util/image');
+
+const { getIo } = require('../socket');
 
 const ITEMS_PER_PAGE = 2;
 
@@ -11,6 +12,7 @@ exports.getPosts = async (req, res) => {
     const page = +req.query.page || 1;
     const totalPosts = await Post.find().countDocuments();
     const posts = await Post.find()
+      .sort({ createdAt: -1 })
       .skip((page - 1) * ITEMS_PER_PAGE)
       .limit(ITEMS_PER_PAGE);
     res.status(200).json({
@@ -47,9 +49,12 @@ exports.createPost = async (req, res, next) => {
       title,
       content,
       imageUrl,
-      authorId: req.userId
+      authorId: req.userId,
     });
     await post.save();
+    const postData = await post.populate('authorId');
+    delete postData.authorId.password;
+    getIo().emit('posts', { action: 'new post is created', postData });
     res.status(201).json({
       message: 'Post created succefully',
       post,
@@ -103,14 +108,14 @@ exports.putUpdatePost = async (req, res, next) => {
       throw error;
     }
     // updating on database
-    const post = await Post.findById(id);
+    const post = await Post.findById(id).populate('authorId');
     if (!post) {
       const error = new Error('Post is not exist');
       error.statusCode = 404;
       throw error;
     }
-    if (post.authorId.toString() !== req.userId) {
-      const error = new Error(`You don't have permission to delete this post`);
+    if (post.authorId._id.toString() !== req.userId) {
+      const error = new Error(`You don't have permission to update this post`);
       error.statusCode = 403;
       throw error;
     }
@@ -120,7 +125,8 @@ exports.putUpdatePost = async (req, res, next) => {
     post.title = title;
     post.content = content;
     post.imageUrl = imageUrl;
-    await post.save();
+    const result = await post.save();
+    getIo().emit('posts', { action: 'update post', post: result });
     res.status(200).json({
       message: 'Post updated successfully',
       post,
@@ -149,6 +155,7 @@ exports.deletePost = async (req, res, next) => {
     }
     clearImage(post.imageUrl);
     await post.delete();
+    getIo().emit('posts', { action: 'post-delete', postId: id })
     res.status(200).json({
       message: 'Post deleted successfully',
     });

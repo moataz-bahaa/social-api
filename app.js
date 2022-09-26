@@ -2,13 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-
 const corsMiddleware = require('./middlewars/cors');
 const rootDir = require('./util/path');
 const isAuth = require('./middlewars/is-auth');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+
+const socket = require('./socket');
 
 const MONGODP_URI = process.env.MONGODB_URI;
 
@@ -40,13 +41,16 @@ const port = process.env.PORT || 8080;
 
 (async () => {
   try {
-    const result = await mongoose.connect(MONGODP_URI);
-    app.listen(port, () => {
+    const dbConnection = await mongoose.connect(MONGODP_URI);
+    const server = app.listen(port, () => {
       console.log(`Server is Listening on port: ${port}`);
+    });
+    const io = socket.init(server);
+    io.on('connection', (socket) => {
+      console.log('Client connected');
     });
   } catch (err) {
     console.log(err);
   }
 })();
 
-// 25 - 20

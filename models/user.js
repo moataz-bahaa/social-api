@@ -9,6 +9,10 @@ const schema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  // username: {
+  //   required: true,
+  //   type: String,
+  // },
   name: {
     required: true,
     type: String,
