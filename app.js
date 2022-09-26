@@ -5,6 +5,7 @@ const path = require('path');
 
 const corsMiddleware = require('./middlewars/cors');
 const rootDir = require('./util/path');
+const isAuth = require('./middlewars/is-auth');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
@@ -20,7 +21,7 @@ app.use(express.json());
 app.use(corsMiddleware);
 
 // routes
-app.use('/feed', feedRoutes);
+app.use('/feed', isAuth, feedRoutes);
 app.use('/auth', authRoutes);
 
 // error handling

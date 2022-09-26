@@ -16,13 +16,7 @@ const schema = new mongoose.Schema({
   status: {
     type: String,
     default: 'I am new!',
-  },
-  posts: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',
-    },
-  ],
+  }
 });
 
 module.exports = mongoose.model('User', schema);

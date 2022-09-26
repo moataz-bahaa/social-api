@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 const { clearImage } = require('../util/image');
 
 const ITEMS_PER_PAGE = 2;
@@ -46,8 +47,9 @@ exports.createPost = async (req, res, next) => {
       title,
       content,
       imageUrl,
+      authorId: req.userId
     });
-    const rseult = await post.save();
+    await post.save();
     res.status(201).json({
       message: 'Post created succefully',
       post,
@@ -107,6 +109,11 @@ exports.putUpdatePost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
+    if (post.authorId.toString() !== req.userId) {
+      const error = new Error(`You don't have permission to delete this post`);
+      error.statusCode = 403;
+      throw error;
+    }
     if (imageUrl !== post.imageUrl) {
       clearImage(post.imageUrl);
     }
@@ -133,6 +140,11 @@ exports.deletePost = async (req, res, next) => {
     if (!post) {
       const error = new Error('Post is not exist');
       error.statusCode = 404;
+      throw error;
+    }
+    if (post.authorId.toString() !== req.userId) {
+      const error = new Error(`You don't have permission to delete this post`);
+      error.statusCode = 403;
       throw error;
     }
     clearImage(post.imageUrl);
